@@ -7,8 +7,6 @@ import {
   PutItemInput,
   ScanCommand,
   ScanCommandInput,
-  UpdateItemCommand,
-  UpdateItemCommandInput,
 } from "@aws-sdk/client-dynamodb";
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
@@ -30,34 +28,46 @@ export default abstract class BaseRepository {
   };
 
   updateEntity = async (id: string, data: any): Promise<any> => {
-    const objKeys = Object.keys(data);
-    const params: UpdateItemCommandInput = {
-      TableName: process.env.DYNAMODB_TABLE_NAME,
-      Key: marshall({ id }),
-      UpdateExpression: `SET ${objKeys
-        .map((_, index) => `#key${index} = :value${index}`)
-        .join(", ")}`,
-      ExpressionAttributeNames: objKeys.reduce(
-        (acc, key, index) => ({
-          ...acc,
-          [`#key${index}`]: key,
-        }),
-        {}
-      ),
-      ExpressionAttributeValues: marshall(
-        objKeys.reduce(
-          (acc, key, index) => ({
-            ...acc,
-            [`:value${index}`]: data[key],
-          }),
-          {}
-        )
-      ),
-    };
-    await dbClient.send(new UpdateItemCommand(params));
+    console.log(data);
+    console.log(id);
     data.id = id;
+    const params: PutItemInput = {
+      TableName: process.env.DYNAMODB_TABLE_NAME,
+      Item: marshall(data),
+    };
+
+    await dbClient.send(new PutItemCommand(params));
     return data;
   };
+  // updateEntity = async (id: string, data: any): Promise<any> => {
+  //   const objKeys = Object.keys(data);
+  //   const params: UpdateItemCommandInput = {
+  //     TableName: process.env.DYNAMODB_TABLE_NAME,
+  //     Key: marshall({ id }),
+  //     UpdateExpression: `SET ${objKeys
+  //       .map((_, index) => `#key${index} = :value${index}`)
+  //       .join(", ")}`,
+  //     ExpressionAttributeNames: objKeys.reduce(
+  //       (acc, key, index) => ({
+  //         ...acc,
+  //         [`#key${index}`]: key,
+  //       }),
+  //       {}
+  //     ),
+  //     ExpressionAttributeValues: marshall(
+  //       objKeys.reduce(
+  //         (acc, key, index) => ({
+  //           ...acc,
+  //           [`:value${index}`]: data[key],
+  //         }),
+  //         {}
+  //       )
+  //     ),
+  //   };
+  //   await dbClient.send(new UpdateItemCommand(params));
+  //   data.id = id;
+  //   return data;
+  // };
 
   findAllEntity = async (): Promise<any> => {
     const { Items } = await dbClient.send(

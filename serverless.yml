@@ -58,6 +58,13 @@ functions:
           path: /{id}
           method: PUT
 
+  setDone:
+    handler: src/functions/setDone.handler
+    events:
+      - http:
+          path: /{id}/done
+          method: PATCH
+
   # deleteTodo:
   #   handler: src/functions/deleteTodo.handler
   #   events:
@@ -71,4 +78,4 @@ custom:
     arn: !GetAtt TodoTable.Arn
   apiGatewayCaching:
     enabled: true
-    ttlInSeconds: 60000
+    ttlInSeconds: 3600

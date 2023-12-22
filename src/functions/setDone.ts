@@ -10,9 +10,9 @@ export const handler = async (
   context: Context
 ) => {
   const id = event.pathParameters!.id as string;
-  const data = JSON.parse(event.body!);
+  const { isDone } = JSON.parse(event.body!);
 
-  return todoService.update!(id, data).then((res) => ({
+  return todoService.setDone!(id, isDone).then((res) => ({
     statusCode: 201,
     body: JSON.stringify(res),
   }));
